@@ -1,0 +1,177 @@
+{
+  "title": "woot",
+  "steps": [
+    {
+      "type": "setViewport",
+      "width": 630,
+      "height": 1213,
+      "deviceScaleFactor": 1,
+      "isMobile": false,
+      "hasTouch": false,
+      "isLandscape": false
+    },
+    {
+      "type": "navigate",
+      "url": "https://www.saucedemo.com/",
+      "assertedEvents": [
+        {
+          "type": "navigation",
+          "url": "https://www.saucedemo.com/",
+          "title": "Swag Labs"
+        }
+      ]
+    },
+    {
+      "type": "click",
+      "selectors": [
+        [
+          "#login_credentials"
+        ]
+      ],
+      "target": "main",
+      "offsetX": 61.5,
+      "offsetY": 72
+    },
+    {
+      "type": "click",
+      "selectors": [
+        [
+          "#login_credentialsss"
+        ]
+      ],
+      "target": "main",
+      "offsetX": 61.5,
+      "offsetY": 72
+    },
+    {
+      "type": "keyDown",
+      "target": "main",
+      "key": "Meta"
+    },
+    {
+      "type": "keyDown",
+      "target": "main",
+      "key": "c"
+    },
+    {
+      "type": "keyUp",
+      "key": "Meta",
+      "target": "main"
+    },
+    {
+      "type": "keyUp",
+      "key": "c",
+      "target": "main"
+    },
+    {
+      "type": "click",
+      "selectors": [
+        [
+          "aria/Username"
+        ],
+        [
+          "[data-test=username]"
+        ]
+      ],
+      "target": "main",
+      "offsetX": 70.5,
+      "offsetY": 22
+    },
+    {
+      "type": "change",
+      "value": "standard_user",
+      "selectors": [
+        [
+          "aria/Username"
+        ],
+        [
+          "[data-test=username]"
+        ]
+      ],
+      "target": "main"
+    },
+    {
+      "type": "click",
+      "selectors": [
+        [
+          "#root > div > div.login_wrapper > div.login_credentials_wrap > div > div.login_password"
+        ]
+      ],
+      "target": "main",
+      "offsetX": 31.171875,
+      "offsetY": 54
+    },
+    {
+      "type": "click",
+      "selectors": [
+        [
+          "#root > div > div.login_wrapper > div.login_credentials_wrap > div > div.login_password"
+        ]
+      ],
+      "target": "main",
+      "offsetX": 31.171875,
+      "offsetY": 54
+    },
+    {
+      "type": "keyDown",
+      "target": "main",
+      "key": "Meta"
+    },
+    {
+      "type": "keyDown",
+      "target": "main",
+      "key": "c"
+    },
+    {
+      "type": "keyUp",
+      "key": "Meta",
+      "target": "main"
+    },
+    {
+      "type": "keyUp",
+      "key": "c",
+      "target": "main"
+    },
+    {
+      "type": "click",
+      "selectors": [
+        [
+          "aria/Password"
+        ],
+        [
+          "[data-test=password]"
+        ]
+      ],
+      "target": "main",
+      "offsetX": 90.5,
+      "offsetY": 14
+    },
+    {
+      "type": "change",
+      "value": "secret_sauce",
+      "selectors": [
+        [
+          "aria/Password"
+        ],
+        [
+          "[data-test=password]"
+        ]
+      ],
+      "target": "main"
+    },
+    {
+      "type": "click",
+      "selectors": [
+        [
+          "aria/Login"
+        ],
+        [
+          "[data-test=login-button]"
+        ]
+      ],
+      "target": "main",
+      "offsetX": 156.5,
+      "offsetY": 23
+    }
+  ]
+}
