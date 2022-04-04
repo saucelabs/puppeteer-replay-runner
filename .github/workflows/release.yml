@@ -68,7 +68,9 @@ jobs:
 
           npx release-it ${{ github.event.inputs.releaseType }} ${PRE_RELEASE_ARGS}
 
-          echo $RELEASE_NAME
+          echo ::set-output name=release_name::${RELEASE_NAME}
+
+      - run: 'Generated Release ${{ steps.prep.outputs.release_name }}'
 
   release-windows-bundle:
     runs-on: windows-latest
