@@ -68,6 +68,8 @@ jobs:
 
           npx release-it ${{ github.event.inputs.releaseType }} ${PRE_RELEASE_ARGS}
 
+          echo $RELEASE_NAME
+
   release-windows-bundle:
     runs-on: windows-latest
     needs: [create-release-draft]
