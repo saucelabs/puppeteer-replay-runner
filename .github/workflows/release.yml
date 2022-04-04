@@ -127,7 +127,7 @@ jobs:
         run: |
           npm version --no-git-tag-version ${{  steps.prep.outputs.version }}
 
-      - run: npm ci --production
+      - run: npm ci
         if: ${{ steps.prep.outputs.asset_id == '' }}
 
       - name: Create Bundle
@@ -203,7 +203,7 @@ jobs:
         run: |
           npm version --no-git-tag-version ${{  steps.prep.outputs.version }}
 
-      - run: npm ci --production
+      - run: npm ci
         if: ${{ steps.prep.outputs.asset_id == '' }}
 
       - name: Create Bundle
