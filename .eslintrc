@@ -1,0 +1,11 @@
+{
+  "env": {
+    "es2021": true,
+    "node": true
+  },
+  "extends": ["prettier", "plugin:@typescript-eslint/recommended"],
+  "plugins": ["prettier", "@typescript-eslint"],
+  "parserOptions": {
+    "ecmaVersion": 2019
+  }
+}
