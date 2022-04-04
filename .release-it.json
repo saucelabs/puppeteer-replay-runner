@@ -14,6 +14,6 @@
         "releaseName": "v${version}"
     },
     "hooks": {
-        "after:release": "export RELEASE_NAME=v${version}"
+        "after:release": "echo v${version} > version.txt"
     }
 }
