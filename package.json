@@ -2,7 +2,7 @@
   "name": "@saucelabs/puppeteer-replay-runner",
   "version": "0.0.0",
   "description": "Sauce Labs Puppeteer Replay Runner",
-  "main": "lib/index.mj",
+  "main": "lib/index.mjs",
   "type": "module",
   "files": [
     "lib"
@@ -29,8 +29,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@puppeteer/replay": "^0.1.1",
-    "puppeteer": "^13.5.1",
+    "@puppeteer/replay": "0.1.1",
+    "puppeteer": "13.5.2",
     "yargs": "^17.4.0"
   },
   "devDependencies": {
