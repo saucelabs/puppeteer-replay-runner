@@ -68,7 +68,9 @@ jobs:
 
           npx release-it ${{ github.event.inputs.releaseType }} ${PRE_RELEASE_ARGS}
 
-          echo ::set-output name=release_name::$(cat version.txt)
+          RELEASE_NAME=$(cat version.txt)
+
+          echo ::set-output name=release_name::${RELEASE_NAME}
 
       - run: echo "Release ${{ steps.prep.outputs.release_name }}"
 
