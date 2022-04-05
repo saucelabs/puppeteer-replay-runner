@@ -128,6 +128,17 @@ jobs:
           asset_name: puppeteer-replay-runner-win.zip
           asset_content_type: application/zip
 
+      - name: Upload Release Asset Legacy
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner.zip
+          asset_path: ./puppeteer-replay-runner-win.zip
+          asset_name: puppeteer-replay-runner.zip
+          asset_content_type: application/zip
+
   release-macos-bundle:
     runs-on: macos-latest
     needs: [create-release-draft]
