@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node version
         uses: actions/setup-node@v3
         with:
-          node: '16'
+          node-version: '16'
 
       - name: Setup Git
         run: |
@@ -96,7 +96,7 @@ jobs:
       - name: Setup node version
         uses: actions/setup-node@v3
         with:
-          node: '16'
+          node-version: '16'
 
       - name: Update Release version
         run: |
@@ -161,7 +161,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node: '16'
+          node-version: '16'
 
       - name: Update Release version
         run: |
