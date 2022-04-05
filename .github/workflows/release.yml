@@ -36,12 +36,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          if [ -z "${{ github.event.inputs.releaseType }}" ] && [ -z "${{ github.event.inputs.preReleaseFlavor }}" ];then
+          if [ -z "${{ github.event.inputs.releaseType }}" ] && [ -z "${{ github.event.inputs.preReleaseFlavor }}" ]; then
             echo "No release type provided."
             exit 1
           fi
 
-          if [ -n "${{ github.event.inputs.preReleaseFlavor }}" ];then
+          if [ -n "${{ github.event.inputs.preReleaseFlavor }}" ]; then
             PRE_RELEASE_ARGS="--preRelease=${{ github.event.inputs.preReleaseFlavor }} --github.preRelease"
           fi
 
@@ -59,6 +59,11 @@ jobs:
 
           echo ::set-output name=release_id::${RELEASE_ID}
 
+      - name: Outputs
+        run: |
+          echo "tag_name: ${{ steps.release.outputs.tag_name }}"
+          echo "release_id: ${{ steps.release.outputs.release_id }}"
+
     outputs:
       tag_name: ${{ steps.release.outputs.tag_name }}
       release_id: ${{ steps.release.outputs.release_id }}
@@ -69,15 +74,15 @@ jobs:
     steps:
       - name: Verify Dependencies
         run: |
-          if [ -z "${{ needs.create-release-draft.outputs.tag_name }}" ];then
-              echo "Missing required tag name"
-              exit 1
-          fi
+          if ( $null -eq ${{ needs.create-release-draft.outputs.tag_name }} ) {
+            echo "Missing required tag name"
+            exit 1          
+          }
 
-          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ];then
-              echo "Missing required release ID"
-              exit 1
-          fi
+          if ( $null -eq ${{ needs.create-release-draft.outputs.release_id }} {
+            echo "Missing required release ID"
+            exit 1
+          }
 
       - uses: actions/checkout@v3
         with:
@@ -125,12 +130,12 @@ jobs:
     steps:
       - name: Verify Dependencies
         run: |
-          if [ -z "${{ needs.create-release-draft.outputs.tag_name }}" ];then
+          if [ -z "${{ needs.create-release-draft.outputs.tag_name }}" ]; then
               echo "Missing required tag name"
               exit 1
           fi
 
-          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ];then
+          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ]; then
               echo "Missing required release ID"
               exit 1
           fi
@@ -177,7 +182,7 @@ jobs:
     steps:
       - name: Verify Dependencies
         run: |
-          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ];then
+          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ]; then
               echo "Missing required release ID"
               exit 1
           fi
