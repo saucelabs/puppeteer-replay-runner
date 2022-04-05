@@ -55,7 +55,7 @@ jobs:
 
           RELEASE_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
             https://api.github.com/repos/${{ github.repository }}/releases | \
-            jq ".[] | select(.tag_name == \"${TAG_NAME}\") | .id"
+            jq ".[] | select(.tag_name == \"${TAG_NAME}\") | .id")
 
           echo ::set-output name=release_id::${RELEASE_ID}
 
