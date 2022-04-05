@@ -70,8 +70,8 @@ jobs:
 
           RELEASE_NAME=$(cat version.txt)
 
-          echo ::set-output name=release_name::${RELEASE_NAME}
-          echo ::set-output name=release_name_dbg::meow
+          echo "::set-output name=release_name::${RELEASE_NAME}"
+          echo "::set-output name=release_name_dbg::meow"
 
       - run: ls -lah
       - run: echo "Release ${{ steps.prep.outputs.release_name }} - ${{ steps.prep.outputs.release_name_dbg }}"
