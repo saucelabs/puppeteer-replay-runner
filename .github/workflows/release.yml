@@ -70,7 +70,7 @@ jobs:
 
     outputs:
       tag_name: ${{ steps.release.outputs.tag_name }}
-      release_id: ${{ steps.post-release.outputs.release_id }}
+      release_id: ${{ steps.release.outputs.release_id }}
 
   release-windows-bundle:
     runs-on: windows-latest
