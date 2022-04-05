@@ -72,6 +72,7 @@ jobs:
 
           echo ::set-output name=release_name::${RELEASE_NAME}
 
+      - run: ls -lah
       - run: echo "Release ${{ steps.prep.outputs.release_name }}"
 
   release-windows-bundle:
