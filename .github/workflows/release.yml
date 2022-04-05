@@ -65,7 +65,7 @@ jobs:
           sleep 5
           RELEASE_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
             https://api.github.com/repos/${{ github.repository }}/releases | \
-            jq ".[] | select(.tag_name == \"${{ steps.release.tag_name }}\") | .id")
+            jq ".[] | select(.tag_name == \"${{ steps.release.outputs.tag_name }}\") | .id")
 
           echo ::set-output name=release_id::${RELEASE_ID}
 
