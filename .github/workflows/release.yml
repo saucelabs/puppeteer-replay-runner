@@ -89,7 +89,7 @@ jobs:
             exit 1          
           }
 
-          if ( $null -eq "${{ needs.create-release-draft.outputs.release_id }}" {
+          if ( $null -eq "${{ needs.create-release-draft.outputs.release_id }}" ) {
             echo "Missing required release ID"
             exit 1
           }
