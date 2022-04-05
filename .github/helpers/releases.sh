@@ -12,6 +12,7 @@ function get_release_id() {
             sleep 5
         else
             echo $RELEASE_ID
+            return 0
         fi
     done
     return 1
