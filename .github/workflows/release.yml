@@ -60,8 +60,8 @@ jobs:
           echo ::set-output name=release_id::${RELEASE_ID}
 
     outputs:
-      tag_name: ${{ steps.release.tag_name }}
-      release_id: ${{ steps.release.release_id }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      release_id: ${{ steps.release.outputs.release_id }}
 
   release-windows-bundle:
     runs-on: windows-latest
@@ -69,12 +69,12 @@ jobs:
     steps:
       - name: Verify Dependencies
         run: |
-          if [ "${{ needs.create-release-draft.outputs.tag_name }}" = "" ];then
+          if [ -z "${{ needs.create-release-draft.outputs.tag_name }}" ];then
               echo "Missing required tag name"
               exit 1
           fi
 
-          if [ "${{ needs.create-release-draft.outputs.release_id }}" = "" ];then
+          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ];then
               echo "Missing required release ID"
               exit 1
           fi
@@ -125,12 +125,12 @@ jobs:
     steps:
       - name: Verify Dependencies
         run: |
-          if [ "${{ needs.create-release-draft.outputs.tag_name }}" = "" ];then
+          if [ -z "${{ needs.create-release-draft.outputs.tag_name }}" ];then
               echo "Missing required tag name"
               exit 1
           fi
 
-          if [ "${{ needs.create-release-draft.outputs.release_id }}" = "" ];then
+          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ];then
               echo "Missing required release ID"
               exit 1
           fi
@@ -177,7 +177,7 @@ jobs:
     steps:
       - name: Verify Dependencies
         run: |
-          if [ "${{ needs.create-release-draft.outputs.release_id }}" = "" ];then
+          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ];then
               echo "Missing required release ID"
               exit 1
           fi
