@@ -20,7 +20,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "prebundle": "npm run build",
-    "bundle": "scripts/bundle.sh",
+    "bundle": "bash scripts/bundle.sh",
     "release": "release-it --github.release",
     "release:ci": "npm run release -- --ci --npm.skipChecks --no-git.requireCleanWorkingDir",
     "release:patch": "npm run release -- patch",

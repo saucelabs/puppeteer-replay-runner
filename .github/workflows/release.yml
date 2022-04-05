@@ -16,51 +16,32 @@ jobs:
   create-release-draft:
     runs-on: ubuntu-latest
     steps:
-      - name: Check tag
-        id: prep
-        run: |
-          TAG_NAME=$(curl -s -H "Authorization: token ${{ github.token }}" \
-                      https://api.github.com/repos/${{ github.repository }}/releases | \
-                      jq -r "[.[] | select(.body | contains(\"- jobId: ${{ github.run_id }}\\n\"))] | first | .tag_name | select (. != null)")
-          IS_DRAFT=$(curl -s -H "Authorization: token ${{ github.token }}" \
-                      https://api.github.com/repos/${{ github.repository }}/releases | \
-                      jq -r "[.[] | select(.body | contains(\"- jobId: ${{ github.run_id }}\\n\"))] | first | .draft | select (. != null)")
-
-          if [ -n "${TAG_NAME}" ] && [ "${IS_DRAFT}" == "false" ];then
-              echo "A release has already been published for this run_id (${{ github.run_id }} / ${TAG_NAME})."
-              exit 1
-          fi
-          echo ::set-output name=tag_name::${TAG_NAME}
-
       - uses: actions/checkout@v3
-        if: ${{ steps.prep.outputs.tag_name == '' }}
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
       - name: Setup Node version
-        if: ${{ steps.prep.outputs.tag_name == '' }}
         uses: actions/setup-node@v3
         with:
-          node: '16'
+          node-version: '16'
 
       - name: Setup Git
-        if: ${{ steps.prep.outputs.tag_name == '' }}
         run: |
           git config --global user.name "devx-sauce-bot"
           git config --global user.email "devx.bot@saucelabs.com"
 
       - name: generate (pre-)release draft
-        if: ${{ steps.prep.outputs.tag_name == '' }}
+        id: release
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          if [ -z "${{ github.event.inputs.releaseType }}" ] && [ -z "${{ github.event.inputs.preReleaseFlavor }}" ];then
+          if [ -z "${{ github.event.inputs.releaseType }}" ] && [ -z "${{ github.event.inputs.preReleaseFlavor }}" ]; then
             echo "No release type provided."
             exit 1
           fi
 
-          if [ -n "${{ github.event.inputs.preReleaseFlavor }}" ];then
+          if [ -n "${{ github.event.inputs.preReleaseFlavor }}" ]; then
             PRE_RELEASE_ARGS="--preRelease=${{ github.event.inputs.preReleaseFlavor }} --github.preRelease"
           fi
 
@@ -68,78 +49,68 @@ jobs:
 
           npx release-it ${{ github.event.inputs.releaseType }} ${PRE_RELEASE_ARGS}
 
+          TAG_NAME=$(cat version.txt)
+
+          echo ::set-output name=tag_name::${TAG_NAME}
+
+          source .github/helpers/releases.sh
+
+          RELEASE_ID=$(get_release_id ${{ github.token }} ${{ github.repository }} $TAG_NAME)
+          if [ -z "$RELEASE_ID" ]; then
+            echo "Failed to get the release ID"
+            exit 1
+          fi
+
+          echo ::set-output name=release_id::${RELEASE_ID}
+
+      - name: Outputs
+        run: |
+          echo "tag_name: ${{ steps.release.outputs.tag_name }}"
+          echo "release_id: ${{ steps.release.outputs.release_id }}"
+
+    outputs:
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      release_id: ${{ steps.release.outputs.release_id }}
+
   release-windows-bundle:
     runs-on: windows-latest
     needs: [create-release-draft]
     steps:
-      - name: Find matching draft tag
-        id: prep
+      - name: Verify Dependencies
         run: |
-          $res = Invoke-WebRequest -Uri "https://api.github.com/repos/${{ github.repository }}/releases" -Headers @{'Authorization' = "token ${{ github.token }}"}
-          $jsonObj = ConvertFrom-Json $([String]::new($res.Content))
-
-          $selectedRelease = $null
-          Foreach ($release in $jsonObj)
-          {
-              if ( ! $release.body -contains "- jobId: ${{ github.run_id }}}\\n") {
-                  continue
-              }
-              if ( ! $release.draft ) {
-                  continue
-              }
-              $selectedRelease = $release
-              break
+          if ( $null -eq "${{ needs.create-release-draft.outputs.tag_name }}" ) {
+            echo "Missing required tag name"
+            exit 1          
           }
 
-          if ( $null -eq $selectedRelease ) {
-              exit 1
+          if ( $null -eq "${{ needs.create-release-draft.outputs.release_id }}" ) {
+            echo "Missing required release ID"
+            exit 1
           }
-
-          $selectedAsset = $null
-          Foreach ($asset in $selectedRelease.assets) {
-            if ($asset.name -eq "puppeteer-replay-runner-win.zip") {
-              $selectedAsset = $asset
-            }
-          }
-
-          $tagName = $selectedRelease.tag_name
-          $releaseId = $selectedRelease.id
-          $assetId = $selectedAsset.id
-          Write-Output "::set-output name=version::$tagName"
-          Write-Output "::set-output name=release_id::$releaseId"
-          Write-Output "::set-output name=asset_id::$assetId"
-
-      - run: Write-Output "${{ steps.prep.outputs.release_id }} - ${{ steps.prep.outputs.version }} - ${{ steps.prep.outputs.asset_id }}"
 
       - uses: actions/checkout@v3
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         with:
-          ref: ${{ steps.prep.outputs.version }}
+          ref: ${{ github.ref }}
+          fetch-depth: 0
 
       - name: Setup node version
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         uses: actions/setup-node@v3
         with:
-          node: '16'
+          node-version: '16'
 
       - name: Update Release version
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         run: |
-          npm version --no-git-tag-version ${{  steps.prep.outputs.version }}
+          npm version --no-git-tag-version ${{ needs.create-release-draft.outputs.tag_name }}
 
-      - run: npm ci --production
-        if: ${{ steps.prep.outputs.asset_id == '' }}
+      - run: npm ci
 
       - name: Create Bundle
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         run: npm run bundle
 
       - name: List bundle contents
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         run: ls -R bundle/
 
       - name: Archive bundle
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         uses: azure/powershell@v1
         with:
           inlineScript: |
@@ -147,108 +118,89 @@ jobs:
           azPSVersion: '3.1.0'
 
       - name: Upload Release Asset
-        if: ${{ steps.prep.outputs.asset_id == '' }}
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.prep.outputs.release_id }}/assets?name=puppeteer-replay-runner-win.zip
+          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-win.zip
           asset_path: ./puppeteer-replay-runner-win.zip
           asset_name: puppeteer-replay-runner-win.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset Legacy
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner.zip
+          asset_path: ./puppeteer-replay-runner-win.zip
+          asset_name: puppeteer-replay-runner.zip
           asset_content_type: application/zip
 
   release-macos-bundle:
     runs-on: macos-latest
     needs: [create-release-draft]
     steps:
-      - name: Find matching draft tag
-        id: prep
+      - name: Verify Dependencies
         run: |
-          VERSION=$(curl -s -H "Authorization: token ${{ github.token }}" \
-                      https://api.github.com/repos/${{ github.repository }}/releases | \
-                      jq -r "[.[] | select(.draft == true) | select(.body | contains(\"- jobId: ${{ github.run_id }}\\n\"))] | first | .tag_name")
-          RELEASE_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
-                      https://api.github.com/repos/${{ github.repository }}/releases | \
-                      jq -r "[.[] | select(.draft == true) | select(.body | contains(\"- jobId: ${{ github.run_id }}\\n\"))] | first | .id")
-
-          if [ "${VERSION}" = "" ];then
-              echo "No draft version found"
+          if [ -z "${{ needs.create-release-draft.outputs.tag_name }}" ]; then
+              echo "Missing required tag name"
               exit 1
           fi
 
-          ASSET_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
-                      https://api.github.com/repos/${{ github.repository }}/releases | \
-                      jq -r "[.[] | select(.body | contains(\"- jobId: ${{ github.run_id }}\\n\"))] | first | .assets | .[] | select(.name == \"sauce-testcafe-macos.zip\") | .id | select(. != null)")
-
-          echo ::set-output name=version::${VERSION}
-          echo ::set-output name=release_id::${RELEASE_ID}
-          echo ::set-output name=asset_id::${ASSET_ID}
-
-      - run: echo "${{ steps.prep.outputs.release_id }} - ${{ steps.prep.outputs.version }} - ${{ steps.prep.outputs.asset_id }}"
+          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ]; then
+              echo "Missing required release ID"
+              exit 1
+          fi
 
       - uses: actions/checkout@v3
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         with:
-          ref: ${{ steps.prep.outputs.version }}
+          ref: ${{ github.ref }}
+          fetch-depth: 0
 
       - name: Setup Node
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         uses: actions/setup-node@v3
         with:
-          node: '16'
+          node-version: '16'
 
       - name: Update Release version
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         run: |
-          npm version --no-git-tag-version ${{  steps.prep.outputs.version }}
+          npm version --no-git-tag-version ${{ needs.create-release-draft.outputs.tag_name }}
 
-      - run: npm ci --production
-        if: ${{ steps.prep.outputs.asset_id == '' }}
+      - run: npm ci
 
       - name: Create Bundle
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         run: npm run bundle
 
       - name: List bundle contents
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         run: ls -R bundle/
 
       - name: Archive bundle
-        if: ${{ steps.prep.outputs.asset_id == '' }}
         run: zip --symlinks -r puppeteer-replay-runner-macos.zip bundle/
 
       - name: Upload Release Asset
-        if: ${{ steps.prep.outputs.asset_id == '' }}
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.prep.outputs.release_id }}/assets?name=puppeteer-replay-runner-macos.zip
+          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-macos.zip
           asset_path: ./puppeteer-replay-runner-macos.zip
           asset_name: puppeteer-replay-runner-macos.zip
           asset_content_type: application/zip
 
   publish-release:
     runs-on: ubuntu-latest
-    needs: [release-docker, release-windows-bundle, release-macos-bundle]
+    needs: [create-release-draft, release-windows-bundle, release-macos-bundle]
     steps:
-      - name: Find matching draft tag
-        id: prep
+      - name: Verify Dependencies
         run: |
-          RELEASE_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
-                      https://api.github.com/repos/${{ github.repository }}/releases | \
-                      jq -r "[.[] | select(.draft == true) | select(.body | contains(\"- jobId: ${{ github.run_id }}\\n\"))] | first | .id")
-
-          if [ "${RELEASE_ID}" = "" ];then
-              echo "No draft version found"
+          if [ -z "${{ needs.create-release-draft.outputs.release_id }}" ]; then
+              echo "Missing required release ID"
               exit 1
           fi
-          echo ::set-output name=release_id::${RELEASE_ID}
 
       - name: Publish release
         run: |
           curl -f -X PATCH -H "Authorization: token ${{ github.token }}" \
-            https://api.github.com/repos/${{ github.repository }}/releases/${{ steps.prep.outputs.release_id }} \
+            https://api.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }} \
             -d '{"draft":"false"}'

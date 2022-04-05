@@ -12,5 +12,8 @@
         "release": true,
         "draft": true,
         "releaseName": "v${version}"
+    },
+    "hooks": {
+        "after:release": "echo v${version} > version.txt"
     }
 }
