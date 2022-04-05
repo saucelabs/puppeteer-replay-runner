@@ -53,25 +53,20 @@ jobs:
 
           echo ::set-output name=tag_name::${TAG_NAME}
 
-          # RELEASE_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
-          #   https://api.github.com/repos/${{ github.repository }}/releases | \
-          #   jq ".[] | select(.tag_name == \"${TAG_NAME}\") | .id")
+          source .github/helpers/releases.sh
 
-          # echo ::set-output name=release_id::${RELEASE_ID}
-
-      - name: Post Release Capture
-        id: post-release
-        run: |
-          RELEASE_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
-            https://api.github.com/repos/${{ github.repository }}/releases | \
-            jq ".[] | select(.tag_name == \"${{ steps.release.outputs.tag_name }}\") | .id")
+          RELEASE_ID=$(get_release_id ${{ github.token }} ${{ github.repository }} $TAG_NAME)
+          if [ -z "$RELEASE_ID" ]; then
+            echo "Failed to get the release ID"
+            exit 1
+          fi
 
           echo ::set-output name=release_id::${RELEASE_ID}
 
       - name: Outputs
         run: |
           echo "tag_name: ${{ steps.release.outputs.tag_name }}"
-          echo "release_id: ${{ steps.post-release.outputs.release_id }}"
+          echo "release_id: ${{ steps.release.outputs.release_id }}"
 
     outputs:
       tag_name: ${{ steps.release.outputs.tag_name }}
