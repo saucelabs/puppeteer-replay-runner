@@ -114,7 +114,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Compress-Archive bundle/ puppeteer-replay-runner-win.zip
+            Compress-Archive bundle/ puppeteer-replay-runner-win-amd64.zip
           azPSVersion: '3.1.0'
 
       - name: Upload Release Asset
@@ -122,9 +122,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-win.zip
-          asset_path: ./puppeteer-replay-runner-win.zip
-          asset_name: puppeteer-replay-runner-win.zip
+          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-win-amd64.zip
+          asset_path: ./puppeteer-replay-runner-win-amd64.zip
+          asset_name: puppeteer-replay-runner-win-amd64.zip
           asset_content_type: application/zip
 
       - name: Upload Release Asset Legacy
@@ -133,7 +133,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner.zip
-          asset_path: ./puppeteer-replay-runner-win.zip
+          asset_path: ./puppeteer-replay-runner-win-amd64.zip
           asset_name: puppeteer-replay-runner.zip
           asset_content_type: application/zip
 
@@ -176,15 +176,25 @@ jobs:
         run: ls -R bundle/
 
       - name: Archive bundle
-        run: zip --symlinks -r puppeteer-replay-runner-macos.zip bundle/
+        run: zip --symlinks -r puppeteer-replay-runner-macos-amd64.zip bundle/
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
+          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-macos-amd64.zip
+          asset_path: ./puppeteer-replay-runner-macos-amd64.zip
+          asset_name: puppeteer-replay-runner-macos-amd64.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset Legacy
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
           upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-macos.zip
-          asset_path: ./puppeteer-replay-runner-macos.zip
+          asset_path: ./puppeteer-replay-runner-macos-amd64.zip
           asset_name: puppeteer-replay-runner-macos.zip
           asset_content_type: application/zip
 
