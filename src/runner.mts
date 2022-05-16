@@ -114,7 +114,7 @@ class Extension extends PuppeteerRunnerExtension {
       return null;
     }
 
-    return this.imgCounter++;
+    return this.imgCounter++ - 1;
   }
 }
 
