@@ -31,7 +31,7 @@ type RunConfig = {
 class Extension extends PuppeteerRunnerExtension {
   videoStartTime = Date.parse(process.env.SAUCE_VIDEO_START_TIME);
   startTime = Date.now();
-  imgCounter = 1;
+  imgCounter = 0;
   cmds = [] as LogEntry[];
 
   async beforeAllSteps(flow: UserFlow) {
