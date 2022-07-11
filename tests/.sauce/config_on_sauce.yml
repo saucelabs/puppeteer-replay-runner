@@ -7,3 +7,9 @@ suites:
   - name: "getting some coffee"
     platformName: "Windows 10"
     recordings: [ "coffee-cart.json" ]
+
+notifications:
+  slack:
+    channels: ["devx"]
+    send: fail
+

@@ -7,3 +7,9 @@ suites:
   - name: "getting some coffee"
     platform: "macOS 11.00"
     recordings: [ "coffee-cart.json" ]
+
+notifications:
+  slack:
+    channels: ["devx"]
+    send: fail
+
