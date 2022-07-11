@@ -10,6 +10,6 @@ suites:
 
 notifications:
   slack:
-    channels: ["devx"]
+    channels: ["devx-slack-notifications"]
     send: fail
 
