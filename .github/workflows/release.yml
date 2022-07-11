@@ -228,7 +228,7 @@ jobs:
       - name: cloud tests
         working-directory: ./tests
         run: |
-          saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.release_id }}/puppeteer-replay-runner-win-amd64.zip" --config ./.sauce/config_on_sauce.yml
+          saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.tag_name }}/puppeteer-replay-runner-win-amd64.zip" --config ./.sauce/config_on_sauce.yml
 
   post-release-macos-tests:
     runs-on: ubuntu-latest
@@ -243,4 +243,4 @@ jobs:
       - name: cloud tests
         working-directory: ./tests
         run: |
-          saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.release_id }}/puppeteer-replay-runner-macos-amd64.zip" --config ./.sauce/config_on_sauce_mac.yml
+          saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.tag_name }}/puppeteer-replay-runner-macos-amd64.zip" --config ./.sauce/config_on_sauce_mac.yml
