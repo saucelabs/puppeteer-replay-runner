@@ -82,7 +82,7 @@ jobs:
       - name: Test on Sauce
         working-directory: ./tests
         run: |
-          saucectl run --config .sauce/config_on_sauce.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-runner-${{ github.run_id }}.zip"
+          saucectl run --config .sauce/config-win.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-runner-${{ github.run_id }}.zip"
 
   build-mac-bundle-and-test:
     runs-on: macos-latest
@@ -135,4 +135,4 @@ jobs:
       - name: Test on Sauce
         working-directory: ./tests
         run: |
-          saucectl run --config .sauce/config_on_sauce_mac.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-${{ github.run_id }}.zip"
+          saucectl run --config .sauce/config-mac.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-${{ github.run_id }}.zip"
