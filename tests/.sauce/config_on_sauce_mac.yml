@@ -5,7 +5,7 @@ sauce:
   concurrency: 10
 suites:
   - name: "getting some coffee"
-    platform: "macOS 11.00"
+    platform: "macOS 12"
     recordings: [ "coffee-cart.json" ]
 
 notifications:
