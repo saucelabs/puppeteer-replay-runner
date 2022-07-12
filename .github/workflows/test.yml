@@ -1,5 +1,9 @@
 name: Test
 
+env:
+  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+
 on:
   push:
     branches: [main]
@@ -22,3 +26,113 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run lint
+
+  build-windows-bundle-and-test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Authenticate gcloud
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GCS_RUNNER_SA_KEY }}'
+
+      - name: Install gcloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCS_RUNNER_PROJECT_ID }}
+        env:
+          CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
+
+      - name: Update Release version
+        run: npm version --no-git-tag-version 1.0.0
+
+      - run: npm ci
+
+      - name: Bundle Directory
+        run: npm run bundle
+
+      - name: Archive bundle
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Compress-Archive bundle/ puppeteer-replay-runner.zip
+          azPSVersion: '3.1.0'
+
+      - name: Upload to GCS
+        run: |
+          gsutil cp ./puppeteer-replay-runner.zip gs://${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-runner-${{ github.run_id }}.zip
+
+      - run: npm i saucectl -g
+
+      - name: Test on Sauce
+        working-directory: ./tests
+        run: |
+          saucectl run --config .sauce/config-win.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-runner-${{ github.run_id }}.zip"
+
+  build-mac-bundle-and-test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Authenticate gcloud
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GCS_RUNNER_SA_KEY }}'
+
+      - name: Install gcloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCS_RUNNER_PROJECT_ID }}
+        env:
+          CLOUDSDK_PYTHON: ${{env.pythonLocation}}/python
+
+      - name: Update Release version
+        run: npm version --no-git-tag-version 1.0.0
+
+      - run: npm ci
+
+      - name: Bundle Directory
+        run: npm run bundle
+
+      - name: Archive bundle
+        run: zip --symlinks -r puppeteer-replay-macos.zip bundle/
+
+      - name: Upload to GCS
+        run: |
+          gsutil cp ./puppeteer-replay-macos.zip gs://${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-${{ github.run_id }}.zip
+
+      - run: npm i saucectl -g
+
+      - name: Test on Sauce
+        working-directory: ./tests
+        run: |
+          saucectl run --config .sauce/config-mac.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-${{ github.run_id }}.zip"

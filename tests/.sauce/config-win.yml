@@ -1,0 +1,15 @@
+apiVersion: v1alpha
+kind: puppeteer-replay
+sauce:
+  region: us-west-1
+  concurrency: 10
+suites:
+  - name: "getting some coffee"
+    platform: "Windows 11"
+    recordings: [ "coffee-cart.json" ]
+
+notifications:
+  slack:
+    channels: ["devx-slack-notifications"]
+    send: fail
+
