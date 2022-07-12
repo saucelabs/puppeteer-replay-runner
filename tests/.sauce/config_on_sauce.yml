@@ -5,7 +5,7 @@ sauce:
   concurrency: 10
 suites:
   - name: "getting some coffee"
-    platformName: "Windows 10"
+    platform: "Windows 11"
     recordings: [ "coffee-cart.json" ]
 
 notifications:
