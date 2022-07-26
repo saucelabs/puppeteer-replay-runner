@@ -3,9 +3,12 @@ import {
   parse as parseReplay,
   PuppeteerRunnerExtension,
 } from '@puppeteer/replay';
-import { Step, UserFlow } from '@puppeteer/replay/lib/Schema';
+import { Schema } from '@puppeteer/replay';
 import fs from 'fs';
 import puppeteer from 'puppeteer';
+
+type UserFlow = Schema.UserFlow;
+type Step = Schema.Step;
 
 type LogEntry = {
   screenshot?: number;
