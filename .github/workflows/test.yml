@@ -27,17 +27,17 @@ jobs:
       - run: npm ci
       - run: npm run lint
 
-  build-windows-bundle-and-test:
+  build-windows-bundle:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
 
@@ -77,6 +77,20 @@ jobs:
         run: |
           gsutil cp ./puppeteer-replay-runner.zip gs://${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-runner-${{ github.run_id }}.zip
 
+  windows-bundle-test:
+    needs: [build-windows-bundle]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - run: npm i saucectl -g
 
       - name: Test on Sauce
@@ -84,17 +98,17 @@ jobs:
         run: |
           saucectl run --config .sauce/config-win.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-runner-${{ github.run_id }}.zip"
 
-  build-mac-bundle-and-test:
+  build-mac-bundle:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
 
@@ -130,6 +144,20 @@ jobs:
         run: |
           gsutil cp ./puppeteer-replay-macos.zip gs://${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-${{ github.run_id }}.zip
 
+  mac-bundle-test:
+    needs: [build-mac-bundle]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
       - run: npm i saucectl -g
 
       - name: Test on Sauce
