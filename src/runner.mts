@@ -6,6 +6,8 @@ import {
 import { Schema } from '@puppeteer/replay';
 import fs from 'fs';
 import puppeteer from 'puppeteer';
+import cri from 'chrome-remote-interface';
+import { spawn } from 'child_process';
 
 type UserFlow = Schema.UserFlow;
 type Step = Schema.Step;
@@ -132,7 +134,64 @@ function parseRecording(recording: string) {
   return parseReplay(JSON.parse(fs.readFileSync(recording, 'utf8')));
 }
 
+async function cdp() {
+  let client;
+  try {
+    // launch browser
+    const proc = spawn(
+      process.env.SAUCE_BROWSER ||
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      ['--remote-debugging-port=9222'],
+      { stdio: 'inherit', cwd: process.cwd(), env: process.env }
+    );
+
+    const procPromise = new Promise((resolve) => {
+      proc.on('spawn', (code /*, ...args*/) => {
+        const spawned = code === 0;
+        resolve(spawned);
+      });
+    });
+
+    try {
+      await procPromise;
+      await sleep(1000); // allow time for the browser to finish any start up tasks
+    } catch (e) {
+      console.error(`Unable to open browser. Reason: ${e}`);
+      return;
+    }
+
+    let vinfo = await cri.Version();
+    console.log(`Protocol Version: ${vinfo['Protocol-Version']}`);
+
+    // connect to endpoint
+    client = await cri();
+    // extract domains
+    const { Network, Page } = client;
+    // setup handlers
+    Network.requestWillBeSent((params) => {
+      console.log(params.request.url);
+    });
+    // enable events then start!
+    await Network.enable();
+    await Page.enable();
+    await Page.navigate({ url: 'https://github.com' });
+    await Page.loadEventFired();
+    await sleep(1500);
+    proc.kill();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (client) {
+      await client.close();
+    }
+  }
+}
+
 export async function replay(runCfgPath: string, suiteName: string) {
+  if (suiteName.startsWith('cdp')) {
+    return await cdp();
+  }
+
   const conf = loadRunConfig(runCfgPath);
   const suite = conf.suites.find(({ name }) => name === suiteName);
   if (!suite) {
@@ -155,4 +214,8 @@ export async function replay(runCfgPath: string, suiteName: string) {
 
   await runner.run();
   await browser.close();
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

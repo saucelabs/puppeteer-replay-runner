@@ -30,10 +30,12 @@
   "license": "MIT",
   "dependencies": {
     "@puppeteer/replay": "0.5.1",
+    "chrome-remote-interface": "0.31.1",
     "puppeteer": "15.5.0",
     "yargs": "^17.4.0"
   },
   "devDependencies": {
+    "@types/chrome-remote-interface": "^0.31.4",
     "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
