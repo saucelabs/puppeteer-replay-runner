@@ -6,6 +6,9 @@ import {
 import { Schema } from '@puppeteer/replay';
 import fs from 'fs';
 import puppeteer from 'puppeteer';
+import cri from 'chrome-remote-interface';
+import { spawn } from 'child_process';
+import getPort from 'get-port';
 
 type UserFlow = Schema.UserFlow;
 type Step = Schema.Step;
@@ -132,7 +135,65 @@ function parseRecording(recording: string) {
   return parseReplay(JSON.parse(fs.readFileSync(recording, 'utf8')));
 }
 
+async function cdp() {
+  let client;
+  try {
+    // Hack to give proxy enough time to start
+    await sleep(10000);
+
+    const host = '127.0.0.1';
+    const port = await getPort({ port: [49221, 55001] });
+    console.log(`Picked port ${port}`);
+
+    // launch browser
+    const proc = spawn(
+      process.env.BROWSER_PATH ||
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      [
+        `--remote-debugging-port=${port}`,
+        `--remote-debugging-address=${host}`,
+        '--no-first-run',
+        '--proxy-bypass-list=<-loopback>',
+      ],
+      { stdio: 'inherit', cwd: process.cwd(), env: process.env }
+    );
+
+    try {
+      await connect(host, port);
+    } catch (e) {
+      console.error(`Unable to open browser. Reason: ${e}`);
+      return;
+    }
+
+    // connect to endpoint
+    client = await cri({ host, port });
+    // extract domains
+    const { Network, Page } = client;
+    // setup handlers
+    Network.requestWillBeSent((params) => {
+      console.log(params.request.url);
+    });
+    // enable events then start!
+    await Network.enable();
+    await Page.enable();
+    await Page.navigate({ url: 'https://github.com' });
+    await Page.loadEventFired();
+    await sleep(1500);
+    proc.kill();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (client) {
+      await client.close();
+    }
+  }
+}
+
 export async function replay(runCfgPath: string, suiteName: string) {
+  if (suiteName.startsWith('cdp')) {
+    return await cdp();
+  }
+
   const conf = loadRunConfig(runCfgPath);
   const suite = conf.suites.find(({ name }) => name === suiteName);
   if (!suite) {
@@ -155,4 +216,27 @@ export async function replay(runCfgPath: string, suiteName: string) {
 
   await runner.run();
   await browser.close();
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function connect(host, port) {
+  const max = 5;
+  let attempt = 0;
+
+  while (true) {
+    if (attempt > max) {
+      throw new Error('browser unavailable after 5 attempts');
+    }
+    try {
+      await cri.Version({ host, port });
+      break;
+    } catch (err) {
+      console.log(`Browser not ready: ${err}`);
+      await sleep(1300);
+      attempt++;
+    }
+  }
 }
