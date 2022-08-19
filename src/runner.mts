@@ -139,7 +139,8 @@ async function cdp() {
   let client;
   try {
     const host = '127.0.0.1';
-    const port = await getPort();
+    const port = await getPort({ port: [49221, 55001] });
+    console.log(`Picked port ${port}`);
 
     // launch browser
     const proc = spawn(
@@ -231,7 +232,7 @@ async function connect(host, port) {
       break;
     } catch (err) {
       console.log(`Browser not ready: ${err}`);
-      await sleep(1000);
+      await sleep(1300);
       attempt++;
     }
   }
