@@ -141,7 +141,7 @@ async function cdp() {
     const proc = spawn(
       process.env.BROWSER_PATH ||
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-      ['--remote-debugging-port=9222', '--no-first-run'],
+      ['--remote-debugging-port=49303', '--no-first-run'],
       { stdio: 'inherit', cwd: process.cwd(), env: process.env }
     );
 
@@ -160,11 +160,11 @@ async function cdp() {
       return;
     }
 
-    let vinfo = await cri.Version();
+    let vinfo = await cri.Version({ port: 49303 });
     console.log(`Protocol Version: ${vinfo['Protocol-Version']}`);
 
     // connect to endpoint
-    client = await cri();
+    client = await cri({ port: 49303 });
     // extract domains
     const { Network, Page } = client;
     // setup handlers
