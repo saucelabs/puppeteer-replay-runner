@@ -167,11 +167,11 @@ async function cdp() {
       return;
     }
 
-    let vinfo = await cri.Version({ port: port });
+    let vinfo = await cri.Version({ host: '127.0.0.1', port: port });
     console.log(`Protocol Version: ${vinfo['Protocol-Version']}`);
 
     // connect to endpoint
-    client = await cri({ port: port });
+    client = await cri({ host: '127.0.0.1', port: port });
     // extract domains
     const { Network, Page } = client;
     // setup handlers
