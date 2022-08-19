@@ -8,6 +8,7 @@ import fs from 'fs';
 import puppeteer from 'puppeteer';
 import cri from 'chrome-remote-interface';
 import { spawn } from 'child_process';
+import getPort from 'get-port';
 
 type UserFlow = Schema.UserFlow;
 type Step = Schema.Step;
@@ -137,11 +138,17 @@ function parseRecording(recording: string) {
 async function cdp() {
   let client;
   try {
+    const port = await getPort();
+
     // launch browser
     const proc = spawn(
       process.env.BROWSER_PATH ||
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-      ['--remote-debugging-port=49221', '--no-first-run'],
+      [
+        `--remote-debugging-port=${port}`,
+        '--no-first-run',
+        '--homepage=about:blank',
+      ],
       { stdio: 'inherit', cwd: process.cwd(), env: process.env }
     );
 
@@ -160,11 +167,11 @@ async function cdp() {
       return;
     }
 
-    let vinfo = await cri.Version({ port: 49221 });
+    let vinfo = await cri.Version({ port: port });
     console.log(`Protocol Version: ${vinfo['Protocol-Version']}`);
 
     // connect to endpoint
-    client = await cri({ port: 49221 });
+    client = await cri({ port: port });
     // extract domains
     const { Network, Page } = client;
     // setup handlers

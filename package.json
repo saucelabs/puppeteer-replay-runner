@@ -31,6 +31,7 @@
   "dependencies": {
     "@puppeteer/replay": "0.5.1",
     "chrome-remote-interface": "0.31.1",
+    "get-port": "5.1.1",
     "puppeteer": "15.5.0",
     "yargs": "^17.4.0"
   },
