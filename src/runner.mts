@@ -146,8 +146,9 @@ async function cdp() {
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
       [
         `--remote-debugging-port=${port}`,
+        '--remote-debugging-address=127.0.0.1',
         '--no-first-run',
-        '--homepage=about:blank',
+        '--proxy-bypass-list=<-loopback>',
       ],
       { stdio: 'inherit', cwd: process.cwd(), env: process.env }
     );
