@@ -154,7 +154,7 @@ async function cdp() {
 
     try {
       await procPromise;
-      await sleep(5000); // allow time for the browser to finish any start up tasks
+      await sleep(10000); // allow time for the browser to finish any start up tasks
     } catch (e) {
       console.error(`Unable to open browser. Reason: ${e}`);
       return;
