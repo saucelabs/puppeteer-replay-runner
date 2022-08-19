@@ -138,6 +138,7 @@ function parseRecording(recording: string) {
 async function cdp() {
   let client;
   try {
+    const host = '127.0.0.1';
     const port = await getPort();
 
     // launch browser
@@ -146,33 +147,22 @@ async function cdp() {
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
       [
         `--remote-debugging-port=${port}`,
-        '--remote-debugging-address=127.0.0.1',
+        `--remote-debugging-address=${host}`,
         '--no-first-run',
         '--proxy-bypass-list=<-loopback>',
       ],
       { stdio: 'inherit', cwd: process.cwd(), env: process.env }
     );
 
-    const procPromise = new Promise((resolve) => {
-      proc.on('spawn', (code /*, ...args*/) => {
-        const spawned = code === 0;
-        resolve(spawned);
-      });
-    });
-
     try {
-      await procPromise;
-      await sleep(10000); // allow time for the browser to finish any start up tasks
+      await connect(host, port);
     } catch (e) {
       console.error(`Unable to open browser. Reason: ${e}`);
       return;
     }
 
-    let vinfo = await cri.Version({ host: '127.0.0.1', port: port });
-    console.log(`Protocol Version: ${vinfo['Protocol-Version']}`);
-
     // connect to endpoint
-    client = await cri({ host: '127.0.0.1', port: port });
+    client = await cri({ host, port });
     // extract domains
     const { Network, Page } = client;
     // setup handlers
@@ -226,4 +216,23 @@ export async function replay(runCfgPath: string, suiteName: string) {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function connect(host, port) {
+  const max = 5;
+  let attempt = 0;
+
+  while (true) {
+    if (attempt > max) {
+      throw new Error('browser unavailable after 5 attempts');
+    }
+    try {
+      await cri.Version({ host, port });
+      break;
+    } catch (err) {
+      console.log(`Browser not ready: ${err}`);
+      await sleep(1000);
+      attempt++;
+    }
+  }
 }
