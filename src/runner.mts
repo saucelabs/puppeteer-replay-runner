@@ -138,6 +138,9 @@ function parseRecording(recording: string) {
 async function cdp() {
   let client;
   try {
+    // Hack to give proxy enough time to start
+    await sleep(10000);
+
     const host = '127.0.0.1';
     const port = await getPort({ port: [49221, 55001] });
     console.log(`Picked port ${port}`);
