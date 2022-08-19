@@ -141,7 +141,7 @@ async function cdp() {
     const proc = spawn(
       process.env.BROWSER_PATH ||
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-      ['--remote-debugging-port=9222'],
+      ['--remote-debugging-port=9222', '--no-first-run'],
       { stdio: 'inherit', cwd: process.cwd(), env: process.env }
     );
 
@@ -154,7 +154,7 @@ async function cdp() {
 
     try {
       await procPromise;
-      await sleep(1000); // allow time for the browser to finish any start up tasks
+      await sleep(2000); // allow time for the browser to finish any start up tasks
     } catch (e) {
       console.error(`Unable to open browser. Reason: ${e}`);
       return;
