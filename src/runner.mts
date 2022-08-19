@@ -139,7 +139,7 @@ async function cdp() {
   try {
     // launch browser
     const proc = spawn(
-      process.env.SAUCE_BROWSER ||
+      process.env.BROWSER_PATH ||
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
       ['--remote-debugging-port=9222'],
       { stdio: 'inherit', cwd: process.cwd(), env: process.env }

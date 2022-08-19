@@ -79,6 +79,7 @@ jobs:
 
   windows-bundle-test:
     needs: [build-windows-bundle]
+    if: ${{ false }}
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -146,6 +147,7 @@ jobs:
 
   mac-bundle-test:
     needs: [build-mac-bundle]
+    if: ${{ false }}
     runs-on: macos-latest
     steps:
       - name: Checkout
