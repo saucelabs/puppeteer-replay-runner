@@ -10,5 +10,4 @@ cp "$(which node)" bundle/
 pushd bundle/
 npm cache clean --force
 npm ci --production
-rm -r node_modules/puppeteer/.local-chromium
 popd
