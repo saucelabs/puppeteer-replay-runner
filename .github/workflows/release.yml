@@ -12,6 +12,9 @@ on:
         required: false
         default: ''
 
+env:
+  NODE_VERSION: 16
+
 jobs:
   create-release-draft:
     runs-on: ubuntu-latest
@@ -24,14 +27,18 @@ jobs:
       - name: Setup Node version
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
       - name: Setup Git
         run: |
           git config --global user.name "devx-sauce-bot"
           git config --global user.email "devx.bot@saucelabs.com"
 
-      - name: generate (pre-)release draft
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate (Pre-)Release Draft
         id: release
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -45,13 +52,9 @@ jobs:
             PRE_RELEASE_ARGS="--preRelease=${{ github.event.inputs.preReleaseFlavor }} --github.preRelease"
           fi
 
-          npm ci
-
           npx release-it ${{ github.event.inputs.releaseType }} ${PRE_RELEASE_ARGS}
 
           TAG_NAME=$(cat version.txt)
-
-          echo ::set-output name=tag_name::${TAG_NAME}
 
           source .github/helpers/releases.sh
 
@@ -61,7 +64,8 @@ jobs:
             exit 1
           fi
 
-          echo ::set-output name=release_id::${RELEASE_ID}
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "release_id=${RELEASE_ID}" >> $GITHUB_OUTPUT
 
       - name: Outputs
         run: |
@@ -88,29 +92,29 @@ jobs:
             exit 1
           }
 
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Setup node version
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
-      - name: Update Release version
+      - name: Update Release Version
         run: |
           npm version --no-git-tag-version ${{ needs.create-release-draft.outputs.tag_name }}
 
-      - run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
       - name: Create Bundle
         run: npm run bundle
 
-      - name: List bundle contents
+      - name: List Bundle Contents
         run: ls -R bundle/
 
-      - name: Archive bundle
+      - name: Archive Bundle
         uses: azure/powershell@v1
         with:
           inlineScript: |
@@ -118,24 +122,13 @@ jobs:
           azPSVersion: '3.1.0'
 
       - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-win-amd64.zip
-          asset_path: ./puppeteer-replay-runner-win-amd64.zip
-          asset_name: puppeteer-replay-runner-win-amd64.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset Legacy
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner.zip
-          asset_path: ./puppeteer-replay-runner-win-amd64.zip
-          asset_name: puppeteer-replay-runner.zip
-          asset_content_type: application/zip
+        run: |
+          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-runner-win-amd64.zip
+          mv puppeteer-replay-runner-win-amd64.zip puppeteer-replay-runner.zip
+          # Legacy Filename
+          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-runner.zip
 
   release-macos-bundle:
     runs-on: macos-latest
@@ -153,50 +146,39 @@ jobs:
               exit 1
           fi
 
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
-      - name: Update Release version
+      - name: Update Release Version
         run: |
           npm version --no-git-tag-version ${{ needs.create-release-draft.outputs.tag_name }}
 
-      - run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
       - name: Create Bundle
         run: npm run bundle
 
-      - name: List bundle contents
+      - name: List Bundle Contents
         run: ls -R bundle/
 
-      - name: Archive bundle
+      - name: Archive Bundle
         run: zip --symlinks -r puppeteer-replay-runner-macos-amd64.zip bundle/
 
       - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-macos-amd64.zip
-          asset_path: ./puppeteer-replay-runner-macos-amd64.zip
-          asset_name: puppeteer-replay-runner-macos-amd64.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset Legacy
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.create-release-draft.outputs.release_id }}/assets?name=puppeteer-replay-runner-macos.zip
-          asset_path: ./puppeteer-replay-runner-macos-amd64.zip
-          asset_name: puppeteer-replay-runner-macos.zip
-          asset_content_type: application/zip
+        run: |
+          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-runner-macos-amd64.zip
+          mv puppeteer-replay-runner-macos-amd64.zip puppeteer-replay-runner-macos.zip
+          # Legacy Filename
+          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-runner-macos.zip
 
   publish-release:
     runs-on: ubuntu-latest
@@ -222,10 +204,13 @@ jobs:
       SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
       SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
     steps:
-      - uses: actions/checkout@master
-      - name: Install Saucectl
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Saucectl
         run: npm i saucectl -g
-      - name: cloud tests
+
+      - name: Cloud Tests
         working-directory: ./tests
         run: |
           saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.tag_name }}/puppeteer-replay-runner-win-amd64.zip" --config ./.sauce/config-win.yml
@@ -237,10 +222,13 @@ jobs:
       SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
       SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
     steps:
-      - uses: actions/checkout@master
-      - name: Install Saucectl
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Saucectl
         run: npm i saucectl -g
-      - name: cloud tests
+
+      - name: Cloud Tests
         working-directory: ./tests
         run: |
           saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.tag_name }}/puppeteer-replay-runner-macos-amd64.zip" --config ./.sauce/config-mac.yml

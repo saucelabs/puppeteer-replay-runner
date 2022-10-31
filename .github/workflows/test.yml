@@ -3,6 +3,7 @@ name: Test
 env:
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+  NODE_VERSION: 16
 
 on:
   push:
@@ -13,41 +14,41 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: ['16']
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node }}
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
 
   build-windows-bundle:
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: '3.11'
 
-      - name: Authenticate gcloud
-        uses: 'google-github-actions/auth@v0'
+      - name: Google Cloud Login
+        uses: google-github-actions/auth@v0
         with:
           credentials_json: '${{ secrets.GCS_RUNNER_SA_KEY }}'
 
@@ -58,15 +59,16 @@ jobs:
         env:
           CLOUDSDK_PYTHON: ${{env.pythonLocation}}\python.exe
 
-      - name: Update Release version
+      - name: Update Release Version
         run: npm version --no-git-tag-version 1.0.0
 
-      - run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
       - name: Bundle Directory
         run: npm run bundle
 
-      - name: Archive bundle
+      - name: Archive Bundle
         uses: azure/powershell@v1
         with:
           inlineScript: |
@@ -83,15 +85,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
-      - run: npm i saucectl -g
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup saucectl
+        run: npm i saucectl -g
 
       - name: Test on Sauce
         working-directory: ./tests
@@ -103,21 +104,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: '3.11'
 
-      - name: Authenticate gcloud
+      - name: Google Cloud Login
         uses: 'google-github-actions/auth@v0'
         with:
           credentials_json: '${{ secrets.GCS_RUNNER_SA_KEY }}'
@@ -132,12 +131,13 @@ jobs:
       - name: Update Release version
         run: npm version --no-git-tag-version 1.0.0
 
-      - run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
       - name: Bundle Directory
         run: npm run bundle
 
-      - name: Archive bundle
+      - name: Archive Bundle
         run: zip --symlinks -r puppeteer-replay-macos.zip bundle/
 
       - name: Upload to GCS
@@ -150,15 +150,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
-      - run: npm i saucectl -g
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup saucectl
+        run: npm i saucectl -g
 
       - name: Test on Sauce
         working-directory: ./tests
