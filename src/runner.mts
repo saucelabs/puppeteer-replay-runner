@@ -104,10 +104,6 @@ class Extension extends PuppeteerRunnerExtension {
     // Pad the number for consistency with selenium.
     const paddedCounter = String(this.imgCounter).padStart(4, '0');
 
-    // Replay defines its own Page interface. However, the underlying object is puppeteer's Page.
-    // Since replay's interface doesn't extend puppeteer's, we have to make the cast.
-    // const page = this.page as Page;
-
     try {
       await this.page.screenshot({
         path: `__assets__/${paddedCounter}screenshot.png`,
