@@ -5,7 +5,7 @@ import {
 } from '@puppeteer/replay';
 import { Schema } from '@puppeteer/replay';
 import fs from 'fs';
-import puppeteer from 'puppeteer';
+import puppeteer, { Product } from 'puppeteer';
 
 type UserFlow = Schema.UserFlow;
 type Step = Schema.Step;
@@ -104,12 +104,8 @@ class Extension extends PuppeteerRunnerExtension {
     // Pad the number for consistency with selenium.
     const paddedCounter = String(this.imgCounter).padStart(4, '0');
 
-    // Replay defines its own Page interface. However, the underlying object is puppeteer's Page.
-    // Since replay's interface doesn't extend puppeteer's, we have to make the cast.
-    const page = this.page as puppeteer.Page;
-
     try {
-      await page.screenshot({
+      await this.page.screenshot({
         path: `__assets__/${paddedCounter}screenshot.png`,
       });
     } catch (e) {
@@ -144,7 +140,7 @@ export async function replay(runCfgPath: string, suiteName: string) {
 
   const browser = await puppeteer.launch({
     headless: false,
-    product: process.env.BROWSER_NAME as puppeteer.Product,
+    product: process.env.BROWSER_NAME as Product,
     executablePath: process.env.BROWSER_PATH,
   });
 
