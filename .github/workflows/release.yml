@@ -118,17 +118,14 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Compress-Archive bundle/ puppeteer-replay-runner-win-amd64.zip
+            Compress-Archive bundle/ puppeteer-replay-windows-amd64.zip
           azPSVersion: '3.1.0'
 
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-runner-win-amd64.zip
-          mv puppeteer-replay-runner-win-amd64.zip puppeteer-replay-runner.zip
-          # Legacy Filename
-          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-runner.zip
+          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-windows-amd64.zip
 
   release-macos-bundle:
     runs-on: macos-latest
@@ -169,16 +166,13 @@ jobs:
         run: ls -R bundle/
 
       - name: Archive Bundle
-        run: zip --symlinks -r puppeteer-replay-runner-macos-amd64.zip bundle/
+        run: zip --symlinks -r puppeteer-replay-macos-amd64.zip bundle/
 
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-runner-macos-amd64.zip
-          mv puppeteer-replay-runner-macos-amd64.zip puppeteer-replay-runner-macos.zip
-          # Legacy Filename
-          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-runner-macos.zip
+          gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-macos-amd64.zip
 
   publish-release:
     runs-on: ubuntu-latest
@@ -213,7 +207,7 @@ jobs:
       - name: Cloud Tests
         working-directory: ./tests
         run: |
-          saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.tag_name }}/puppeteer-replay-runner-win-amd64.zip" --config ./.sauce/config-win.yml
+          saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.tag_name }}/puppeteer-replay-windows-amd64.zip" --config ./.sauce/config-win.yml
 
   post-release-macos-tests:
     runs-on: ubuntu-latest
@@ -231,4 +225,4 @@ jobs:
       - name: Cloud Tests
         working-directory: ./tests
         run: |
-          saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.tag_name }}/puppeteer-replay-runner-macos-amd64.zip" --config ./.sauce/config-mac.yml
+          saucectl run --runner-version "url: https://github.com/saucelabs/puppeteer-replay-runner/releases/download/${{ needs.create-release-draft.outputs.tag_name }}/puppeteer-replay-macos-amd64.zip" --config ./.sauce/config-mac.yml

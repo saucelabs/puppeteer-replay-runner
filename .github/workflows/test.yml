@@ -72,12 +72,12 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Compress-Archive bundle/ puppeteer-replay-runner.zip
+            Compress-Archive bundle/ puppeteer-replay-windows-amd64.zip
           azPSVersion: '3.1.0'
 
       - name: Upload to GCS
         run: |
-          gsutil cp ./puppeteer-replay-runner.zip gs://${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-runner-${{ github.run_id }}.zip
+          gsutil cp ./puppeteer-replay-windows-amd64.zip gs://${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-windows-amd64-${{ github.run_id }}.zip
 
   windows-bundle-test:
     needs: [build-windows-bundle]
@@ -97,7 +97,7 @@ jobs:
       - name: Test on Sauce
         working-directory: ./tests
         run: |
-          saucectl run --config .sauce/config-win.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-runner-${{ github.run_id }}.zip"
+          saucectl run --config .sauce/config-win.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-windows-amd64-${{ github.run_id }}.zip"
 
   build-mac-bundle:
     runs-on: macos-latest
@@ -138,11 +138,11 @@ jobs:
         run: npm run bundle
 
       - name: Archive Bundle
-        run: zip --symlinks -r puppeteer-replay-macos.zip bundle/
+        run: zip --symlinks -r puppeteer-replay-macos-amd64.zip bundle/
 
       - name: Upload to GCS
         run: |
-          gsutil cp ./puppeteer-replay-macos.zip gs://${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-${{ github.run_id }}.zip
+          gsutil cp ./puppeteer-replay-macos-amd64.zip gs://${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-amd64-${{ github.run_id }}.zip
 
   mac-bundle-test:
     needs: [build-mac-bundle]
@@ -162,4 +162,4 @@ jobs:
       - name: Test on Sauce
         working-directory: ./tests
         run: |
-          saucectl run --config .sauce/config-mac.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-${{ github.run_id }}.zip"
+          saucectl run --config .sauce/config-mac.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-amd64-${{ github.run_id }}.zip"
