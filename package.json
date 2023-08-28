@@ -29,8 +29,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@puppeteer/replay": "2.13.2",
-    "puppeteer": "20.9.0",
+    "@puppeteer/replay": "2.13.3",
+    "puppeteer": "21.1.1",
     "yargs": "^17.4.0"
   },
   "devDependencies": {
