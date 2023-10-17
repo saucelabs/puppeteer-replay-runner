@@ -167,5 +167,5 @@ async function runReplay(recording: UserFlow) {
   const runner = await createRunner(recording, new Extension(browser, page));
 
   await runner.run();
-  await browser.close();
+  return browser.close();
 }
