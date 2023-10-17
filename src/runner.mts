@@ -25,6 +25,7 @@ type LogEntry = {
 type Suite = {
   name: string;
   recording: string;
+  timeout?: number;
 };
 
 type RunConfig = {
@@ -135,20 +136,41 @@ export async function replay(runCfgPath: string, suiteName: string) {
     throw new Error(`Could not find suite named '${suiteName}'`);
   }
 
+  // saucectl suite.timeout is in nanoseconds, convert to seconds
+  const timeout = (suite.timeout || 0) / 1_000_000_000 || 30 * 60; // 30min default
+
+  const timeoutPromise = new Promise<boolean>((resolve) => {
+    setTimeout(() => {
+      console.error(`Job timed out after ${timeout} seconds`);
+      resolve(false);
+    }, timeout * 1000);
+  });
+
   // Validate & parse the file.
   const recording = parseRecording(suite.recording);
 
-  const browser = await puppeteer.launch({
-    headless: false,
-    product: process.env.BROWSER_NAME as Product,
-    executablePath: process.env.BROWSER_PATH,
-  });
+  return Promise.race([timeoutPromise, runReplay(recording)]);
+}
 
-  const page = await browser.newPage();
+async function runReplay(recording: UserFlow) {
+  try {
+    const browser = await puppeteer.launch({
+      headless: false,
+      product: process.env.BROWSER_NAME as Product,
+      executablePath: process.env.BROWSER_PATH,
+    });
 
-  // Create a runner and execute the script.
-  const runner = await createRunner(recording, new Extension(browser, page));
+    const page = await browser.newPage();
 
-  await runner.run();
-  await browser.close();
+    // Create a runner and execute the script.
+    const runner = await createRunner(recording, new Extension(browser, page));
+
+    await runner.run();
+    await browser.close();
+
+    return true;
+  } catch (e) {
+    console.error('Error running replay:', e.message);
+    return false;
+  }
 }

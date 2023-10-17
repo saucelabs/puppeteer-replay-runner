@@ -11,7 +11,16 @@ import { replay } from './runner.mjs';
         // noop
       },
       async (argv) => {
-        await replay(argv.runCfgPath as string, argv.suiteName as string);
+        try {
+          const passed = await replay(
+            argv.runCfgPath as string,
+            argv.suiteName as string
+          );
+          process.exit(passed ? 0 : 1);
+        } catch (err) {
+          console.error(err);
+          process.exit(1);
+        }
       }
     )
     .option('runCfgPath', {
