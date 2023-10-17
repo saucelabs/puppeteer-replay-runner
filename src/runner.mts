@@ -149,23 +149,28 @@ export async function replay(runCfgPath: string, suiteName: string) {
   // Validate & parse the file.
   const recording = parseRecording(suite.recording);
 
-  const replayPromise = runReplay(recording);
-
-  return Promise.race([timeoutPromise, replayPromise]);
+  return Promise.race([timeoutPromise, runReplay(recording)]);
 }
 
 async function runReplay(recording: UserFlow) {
-  const browser = await puppeteer.launch({
-    headless: false,
-    product: process.env.BROWSER_NAME as Product,
-    executablePath: process.env.BROWSER_PATH,
-  });
+  try {
+    const browser = await puppeteer.launch({
+      headless: false,
+      product: process.env.BROWSER_NAME as Product,
+      executablePath: process.env.BROWSER_PATH,
+    });
 
-  const page = await browser.newPage();
+    const page = await browser.newPage();
 
-  // Create a runner and execute the script.
-  const runner = await createRunner(recording, new Extension(browser, page));
+    // Create a runner and execute the script.
+    const runner = await createRunner(recording, new Extension(browser, page));
 
-  await runner.run();
-  return browser.close();
+    await runner.run();
+    await browser.close();
+
+    return true;
+  } catch (e) {
+    console.error('Error running replay:', e.message);
+    return false;
+  }
 }
