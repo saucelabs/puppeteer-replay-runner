@@ -45,7 +45,7 @@ class Extension extends PuppeteerRunnerExtension {
     if (!this.videoStartTime) {
       this.videoStartTime = this.startTime;
       console.error(
-        'Unable to determine video start time. Commands will not be in sync with the video.'
+        'Unable to determine video start time. Commands will not be in sync with the video.',
       );
     }
   }
