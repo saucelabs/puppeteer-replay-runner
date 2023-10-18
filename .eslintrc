@@ -4,12 +4,12 @@
     "node": true
   },
   "extends": [
-    "prettier",
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
   ],
-  "plugins": ["prettier", "@typescript-eslint"],
-  "parserOptions": {
-    "ecmaVersion": 2022
-  }
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "parser": "@typescript-eslint/parser"
 }
