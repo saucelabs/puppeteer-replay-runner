@@ -1,6 +1,6 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { replay } from './runner.mjs';
+import { replay } from './runner.js';
 
 (async () => {
   yargs(hideBin(process.argv))

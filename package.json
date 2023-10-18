@@ -1,8 +1,8 @@
 {
   "name": "@saucelabs/puppeteer-replay-runner",
   "version": "0.0.0",
-  "description": "Sauce Labs Puppeteer Replay Runner",
-  "main": "lib/index.mjs",
+  "description": "Replays Chrome DevTools recordings on Sauce Labs",
+  "main": "lib/index.js",
   "type": "module",
   "files": [
     "lib"
