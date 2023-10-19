@@ -14,8 +14,8 @@
     "url": "https://www.saucelabs.com"
   },
   "scripts": {
-    "lint": "prettier --check src/ && eslint src/**",
-    "fmt": "prettier --write src/",
+    "lint": "prettier --check '**/*.{js,ts,mjs,cjs}' && eslint src/**",
+    "fmt": "prettier --write '**/*.{js,ts,mjs,cjs}'",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "watch": "tsc -w",
