@@ -125,7 +125,8 @@ jobs:
           gh release upload ${{ needs.create-release-draft.outputs.tag_name }} puppeteer-replay-windows-amd64.zip
 
   release-macos-bundle:
-    runs-on: macos-latest
+    # macos-latest is arm only
+    runs-on: macos-13
     needs: [create-release-draft]
     steps:
       - name: Verify Dependencies

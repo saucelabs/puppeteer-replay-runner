@@ -100,7 +100,8 @@ jobs:
           saucectl run --config .sauce/config-win.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-windows-amd64-${{ github.run_id }}.zip"
 
   build-mac-bundle:
-    runs-on: macos-latest
+    # macos-latest is arm only
+    runs-on: macos-13
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -146,7 +147,8 @@ jobs:
 
   mac-bundle-test:
     needs: [build-mac-bundle]
-    runs-on: macos-latest
+    # macos-latest is arm only
+    runs-on: macos-13
     steps:
       - name: Checkout
         uses: actions/checkout@v3
