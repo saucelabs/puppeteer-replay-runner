@@ -1,8 +1,8 @@
 name: Test
 
 env:
-  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
-  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+  SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+  SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
 
 on:
   push:
@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: npm
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
       - name: Install Dependencies
         run: npm ci
@@ -33,18 +33,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: npm
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Google Cloud Login
         uses: google-github-actions/auth@v2
@@ -68,7 +68,7 @@ jobs:
         run: npm run bundle
 
       - name: Archive Bundle
-        uses: azure/powershell@v1
+        uses: azure/powershell@v2
         with:
           inlineScript: |
             Compress-Archive bundle/ puppeteer-replay-windows-amd64.zip
@@ -83,18 +83,22 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: npm
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
       - name: Setup saucectl
-        run: npm i saucectl -g
+        uses: saucelabs/saucectl-run-action@v4
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          skip-run: true
 
-      - name: Test on Sauce
+      - name: Test
         working-directory: ./tests
         run: |
           saucectl run --config .sauce/config-win.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-windows-amd64-${{ github.run_id }}.zip"
@@ -104,18 +108,18 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: npm
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Google Cloud Login
         uses: google-github-actions/auth@v2
@@ -151,18 +155,22 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: npm
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
       - name: Setup saucectl
-        run: npm i saucectl -g
+        uses: saucelabs/saucectl-run-action@v4
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          skip-run: true
 
-      - name: Test on Sauce
+      - name: Test
         working-directory: ./tests
         run: |
           saucectl run --config .sauce/config-mac.yml --runner-version "url: https://storage.googleapis.com/${{ secrets.GCS_RUNNER_BUCKET }}/puppeteer-replay-macos-amd64-${{ github.run_id }}.zip"

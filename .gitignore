@@ -107,3 +107,5 @@ dist
 .tern-port
 
 __assets__
+
+.DS_Store
