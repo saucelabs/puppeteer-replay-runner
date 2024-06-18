@@ -30,7 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "@puppeteer/replay": "3.0.0",
-    "puppeteer": "22.2.0",
+    "puppeteer": "22.11.2",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
