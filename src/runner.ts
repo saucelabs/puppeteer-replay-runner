@@ -5,7 +5,7 @@ import {
 } from '@puppeteer/replay';
 import { Schema } from '@puppeteer/replay';
 import fs from 'fs';
-import puppeteer, { Product } from 'puppeteer';
+import puppeteer, { SupportedBrowser } from 'puppeteer';
 
 type UserFlow = Schema.UserFlow;
 type Step = Schema.Step;
@@ -156,7 +156,7 @@ async function runReplay(recording: UserFlow) {
   try {
     const browser = await puppeteer.launch({
       headless: false,
-      product: process.env.BROWSER_NAME as Product,
+      browser: process.env.BROWSER_NAME as SupportedBrowser,
       executablePath: process.env.BROWSER_PATH,
     });
 
