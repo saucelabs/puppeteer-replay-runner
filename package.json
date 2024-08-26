@@ -29,23 +29,23 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@puppeteer/replay": "3.0.0",
-    "puppeteer": "22.13.1",
+    "@puppeteer/replay": "3.1.1",
+    "puppeteer": "23.1.1",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.14.11",
-    "@types/yargs": "^17.0.32",
+    "@types/node": "^22.5.0",
+    "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^7.16.1",
     "@typescript-eslint/parser": "^7.16.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "husky": "^9.1.0",
+    "husky": "^9.1.5",
     "prettier": "^3.3.3",
     "release-it": "^17.6.0",
-    "typescript": "^5.5.3",
+    "typescript": "^5.5.4",
     "typescript-eslint": "^7.16.1"
   }
 }
