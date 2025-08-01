@@ -30,7 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "@puppeteer/replay": "3.1.1",
-    "puppeteer": "24.14.0",
+    "puppeteer": "24.15.0",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
@@ -38,13 +38,13 @@
     "@types/eslint-config-prettier": "^6.11.3",
     "@types/node": "^24.1.0",
     "@types/yargs": "^17.0.33",
-    "eslint": "^9.31.0",
+    "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.3",
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "release-it": "^19.0.4",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "typescript-eslint": "^8.38.0"
   }
 }
