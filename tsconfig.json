@@ -3,7 +3,9 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "outDir": "./lib" /* Specify an output folder for all emitted files. */,
-    "strict": false /* Enable all strict type-checking options. */
+    "rootDir": "./src",
+    "outDir": "./lib",
+    "types": ["node"],
+    "strict": false
   }
 }
