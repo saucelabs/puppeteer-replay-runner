@@ -3,7 +3,9 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules"],
   "compilerOptions": {
+    "rootDir": "./src" /* Specify the root folder within your source files. */,
     "outDir": "./lib" /* Specify an output folder for all emitted files. */,
+    "types": ["node"] /* Specify type package names to be included without being referenced in a source file. */,
     "strict": false /* Enable all strict type-checking options. */
   }
 }
