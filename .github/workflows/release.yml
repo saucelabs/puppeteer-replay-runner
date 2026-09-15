@@ -16,13 +16,13 @@ jobs:
   create-release-draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
       - name: Setup Node version
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -104,10 +104,10 @@ jobs:
           }
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -126,7 +126,7 @@ jobs:
         run: ls -R bundle/
 
       - name: Archive Bundle
-        uses: azure/powershell@v2
+        uses: azure/powershell@v3
         with:
           inlineScript: |
             Compress-Archive bundle/ puppeteer-replay-windows-amd64.zip
@@ -156,10 +156,10 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -211,7 +211,7 @@ jobs:
       SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup saucectl
         uses: saucelabs/saucectl-run-action@v4
@@ -233,7 +233,7 @@ jobs:
       SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup saucectl
         uses: saucelabs/saucectl-run-action@v4
